@@ -11,7 +11,7 @@ const User = (props) => {
   const buttonDelete = (
     <button
       className="btn btn-danger"
-      onClick={() => props.onDelete(props._id)}
+      onClick={() => props.onDeleteUser(props._id)}
     >
       Удалить
     </button>
@@ -19,7 +19,7 @@ const User = (props) => {
   const buttonIcon = (
     <button
       className="btn btn-light"
-      onClick={() => props.onToggleBookMark(props._id)}
+      onClick={() => props.onToggleBookMarkUser(props._id)}
     >
       <BookMark bookmark={props.bookmark} />
     </button>
@@ -40,8 +40,8 @@ User.propTypes = {
   _id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   qualities: PropTypes.array.isRequired,
-  onDelete: PropTypes.func.isRequired,
-  onToggleBookMark: PropTypes.func.isRequired,
+  onDeleteUser: PropTypes.func.isRequired,
+  onToggleBookMarkUser: PropTypes.func.isRequired,
   bookmark: PropTypes.bool.isRequired,
   profession: PropTypes.object.isRequired,
   completedMeetings: PropTypes.number.isRequired,
