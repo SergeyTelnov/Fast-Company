@@ -2,37 +2,41 @@ import React from "react";
 import Qualitie from "./qualitie";
 import BookMark from "./bookmark";
 import PropTypes from "prop-types";
-const User = (props) => {
-  const qualities = props.qualities.map((el) => {
-    return (
-      <Qualitie key={el._id} color={el.color} name={el.name} id={el._id} />
-    );
-  });
-  const buttonDelete = (
-    <button
-      className="btn btn-danger"
-      onClick={() => props.onDeleteUser(props._id)}
-    >
-      Удалить
-    </button>
-  );
-  const buttonIcon = (
-    <button
-      className="btn btn-light"
-      onClick={() => props.onToggleBookMarkUser(props._id)}
-    >
-      <BookMark bookmark={props.bookmark} />
-    </button>
-  );
+const User = ({
+  _id,
+  name,
+  qualities,
+  profession,
+  completedMeetings,
+  rate,
+  onDelete,
+  bookmark,
+  onToggleBookMark
+}) => {
   return (
-    <tr key={props._id}>
-      <td>{props.name}</td>
-      <td>{qualities}</td>
-      <td>{props.profession.name}</td>
-      <td>{props.completedMeetings}</td>
-      <td>{props.rate}/5</td>
-      <td>{buttonIcon}</td>
-      <td>{buttonDelete}</td>
+    <tr key={_id}>
+      <td>{name}</td>
+      <td>
+        {qualities.map((qual) => (
+          <Qualitie {...qual} />
+        ))}
+      </td>
+      <td>{profession.name}</td>
+      <td>{completedMeetings}</td>
+      <td>{rate}/5</td>
+      <td>
+        {<BookMark status={bookmark} onClick={() => onToggleBookMark(_id)} />}
+      </td>
+      <td>
+        {
+          <button
+            className="btn btn-danger"
+            onClick={() => onDelete(props._id)}
+          >
+            Удалить
+          </button>
+        }
+      </td>
     </tr>
   );
 };
