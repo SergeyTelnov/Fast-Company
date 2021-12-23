@@ -44,6 +44,7 @@ const GroupList = ({
       </ul>
     );
   }
+
 };
 GroupList.defaultProps = {
   valueProperty: "_id",
