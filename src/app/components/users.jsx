@@ -7,6 +7,7 @@ import GroupList from "./groupList";
 import SearchStatus from "./searchStatus";
 import UserTable from "./usersTable";
 import _ from "lodash";
+import Loading from "./loading";
 
 const Users = () => {
   const pageSize = 8;
@@ -19,6 +20,11 @@ const Users = () => {
   useEffect(() => {
     api.users.fetchAll().then((data) => setUsers(data));
   }, []);
+  // const [id, setId] = useState();
+  // useEffect(() => {
+  //   api.users.getById(u);
+  // });
+
   const handleDelete = (userId) => {
     setUsers((prevState) => prevState.filter((users) => users._id !== userId));
   };
@@ -100,21 +106,10 @@ const Users = () => {
       </div>
     );
   }
-  return (
-    <div className="d-flex justify-content-center align-items-center">
-      <button className="btn btn-primary" type="button" disabled>
-        <span
-          className="spinner-border spinner-border-sm"
-          role="status"
-          aria-hidden="true"
-        ></span>
-        Loading...
-      </button>
-    </div>
-  );
+  return <Loading />;
 };
 Users.propTypes = {
   users: PropTypes.array
 };
 
-export default Users;
+export { Users };
