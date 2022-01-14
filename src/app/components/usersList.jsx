@@ -8,8 +8,9 @@ import SearchStatus from "./searchStatus";
 import UserTable from "./usersTable";
 import _ from "lodash";
 import Loading from "./loading";
+import SearchUser from "./searchUser";
 
-const Users = () => {
+const UsersList = () => {
   const pageSize = 8;
   const [currentPage, setCurrentPage] = useState(1);
   const [professions, setProfession] = useState();
@@ -17,14 +18,10 @@ const Users = () => {
   const [sortBy, setSortBy] = useState({ iter: "name", order: "asc" });
 
   const [users, setUsers] = useState();
+
   useEffect(() => {
     api.users.fetchAll().then((data) => setUsers(data));
   }, []);
-  // const [id, setId] = useState();
-  // useEffect(() => {
-  //   api.users.getById(u);
-  // });
-
   const handleDelete = (userId) => {
     setUsers((prevState) => prevState.filter((users) => users._id !== userId));
   };
@@ -45,7 +42,11 @@ const Users = () => {
   useEffect(() => {
     setCurrentPage(1);
   }, [selectedProf]);
-
+  //=
+  const searchUsers = (item) => {
+    console.log(item);
+  };
+  //=
   const handleProfessionSelect = (item) => {
     setSelectedProf(item);
   };
@@ -85,6 +86,7 @@ const Users = () => {
 
         <div className="d-flex flex-column">
           <SearchStatus number={count} />
+          <SearchUser usersName={users} onSearch={searchUsers} />
           {count > 0 && (
             <UserTable
               users={userCrop}
@@ -108,8 +110,8 @@ const Users = () => {
   }
   return <Loading />;
 };
-Users.propTypes = {
+UsersList.propTypes = {
   users: PropTypes.array
 };
 
-export { Users };
+export default UsersList;

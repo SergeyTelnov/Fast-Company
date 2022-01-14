@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import api from "../api";
 import Loading from "./loading";
-import { useHistory, useParams } from "react-router-dom";
+import { useHistory } from "react-router-dom";
+import PropTypes from "prop-types";
+import QualitiesList from "./qualitiesList";
 
-const UserPage = () => {
-  const params = useParams();
-  const { userId } = params;
+const UserPage = ({ userId }) => {
   const history = useHistory();
   const [user, setUser] = useState();
   useEffect(() => {
@@ -20,10 +20,12 @@ const UserPage = () => {
     return (
       <>
         <h2>{user.name}</h2>
-        <h4>{`Профессия: ${user.profession.name}`}</h4>
-        <h4>{`Качества: ${user.qualities.map((q) => " " + q.name)}`}</h4>
-        <h4>{`Оценка: ${user.rate}`}</h4>
-        <h4>{`Встретился, раз: ${user.completedMeetings}`}</h4>
+        <h5>Профессия: {user.profession.name}</h5>
+        <h5>
+          Качества: <QualitiesList qualities={user.qualities} />
+        </h5>
+        <h5>Оценка: {user.rate}</h5>
+        <h5>Встретился, раз: {user.completedMeetings}</h5>
         <button
           type="button"
           className="btn btn-primary"
@@ -35,8 +37,12 @@ const UserPage = () => {
         </button>
       </>
     );
+  } else {
+    return <Loading />;
   }
-  return <Loading />;
+};
+UserPage.propTypes = {
+  userId: PropTypes.string.isRequired
 };
 
 export default UserPage;
