@@ -16,8 +16,8 @@ const UsersList = () => {
   const [professions, setProfession] = useState();
   const [selectedProf, setSelectedProf] = useState();
   const [sortBy, setSortBy] = useState({ iter: "name", order: "asc" });
-
   const [users, setUsers] = useState();
+  const [searchUser, setSearchUser] = useState("");
 
   useEffect(() => {
     api.users.fetchAll().then((data) => setUsers(data));
@@ -44,10 +44,12 @@ const UsersList = () => {
   }, [selectedProf]);
   //=
   const searchUsers = (item) => {
-    console.log(item);
+    setSelectedProf(undefined);
+    setSearchUser(item);
   };
   //=
   const handleProfessionSelect = (item) => {
+    if (searchUser !== "") setSearchUser("");
     setSelectedProf(item);
   };
   const hendlePageChange = (pageIndex) => {
@@ -58,9 +60,12 @@ const UsersList = () => {
   };
 
   if (users) {
-    const filteredUsers = selectedProf
-      ? users.filter((user) => user.profession.name === selectedProf.name)
-      : users;
+    const filteredUsers =
+      searchUser !== ""
+        ? searchUser
+        : selectedProf
+        ? users.filter((user) => user.profession.name === selectedProf.name)
+        : users;
 
     const count = filteredUsers.length;
     const sortedUsers = _.orderBy(filteredUsers, [sortBy.path], [sortBy.order]);
