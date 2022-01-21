@@ -13,16 +13,13 @@ module.exports = {
   },
   plugins: ["react"],
   rules: {
-    indent: [
-      "error",
-      2,
-      { SwitchCase: 1, ignoredNodes: ["ConditionalExpression"] }
-    ],
+    indent: [0, 2, { SwitchCase: 1 }],
     semi: [2, "always"],
     "space-before-function-paren": [
       "error",
       { anonymous: "always", named: "never" }
     ],
+    "multiline-ternary": ["off"],
     quotes: ["error", "double", { allowTemplateLiterals: true }]
   }
 };
