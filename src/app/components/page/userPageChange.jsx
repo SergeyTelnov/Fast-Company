@@ -36,7 +36,6 @@ const UserPageChange = ({ userId }) => {
     return qualitieName;
   };
   const handleChange = (target) => {
-    console.log(target);
     if (target.name === "profession") {
       setItem((prevState) => ({
         ...prevState,
@@ -59,7 +58,6 @@ const UserPageChange = ({ userId }) => {
     api.users.update(userId, item);
     getQualitiesName(item.qualities);
     handleUpdatePageUsers(userId);
-    console.log(item);
   };
   const qualitiesList = (qualities) => {
     let qualitiesArray = [];
