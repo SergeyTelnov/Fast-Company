@@ -1,12 +1,31 @@
 import React from "react";
-import { Users as UsersInfo } from "../components/users";
+import { useParams } from "react-router-dom";
+import UserPage from "../components/page/usersPage";
+import UsersListPage from "../components/page/usersListPage";
+import UserPageChange from "../components/page/userPageChange";
 
 const Users = () => {
-  return (
-    <>
-      <UsersInfo />
-    </>
-  );
+  const params = useParams();
+  const { userId, edit } = params;
+  if (userId && edit) {
+    return (
+      <>
+        <UserPageChange userId={userId} />
+      </>
+    );
+  } else if (userId) {
+    return (
+      <>
+        <UserPage userId={userId} />
+      </>
+    );
+  } else {
+    return (
+      <>
+        <UsersListPage />
+      </>
+    );
+  }
 };
 
 export default Users;
