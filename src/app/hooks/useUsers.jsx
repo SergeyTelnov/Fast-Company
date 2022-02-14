@@ -40,10 +40,9 @@ const UserProvider = ({ children }) => {
     </UseContext.Provider>
   );
   function errorCatcher(error) {
-    console.log(error);
-    // const { message } = error.response.data;
-    // setError(message);
-    // setLoading(false);
+    const { message } = error.response.data;
+    setError(message);
+    setLoading(false);
   }
 };
 
