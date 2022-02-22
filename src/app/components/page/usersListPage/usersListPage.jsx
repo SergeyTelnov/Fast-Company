@@ -1,23 +1,25 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import Pagination from "../../common/pagination";
-import { paginate } from "../../../utils/piginate";
-import api from "../../../api";
+import { paginate } from "../../../utils/paginate";
 import GroupList from "../../common/groupList";
 import SearchStatus from "../../ui/searchStatus";
 import UserTable from "../../ui/usersTable";
 import _ from "lodash";
 import Loading from "../../ui/loading";
 import { useUser } from "../../../hooks/useUsers";
+import { useProfession } from "../../../hooks/useProfession";
+import { useAuth } from "../../../hooks/useAuth";
 
 const UsersListPage = () => {
   const pageSize = 8;
   const [currentPage, setCurrentPage] = useState(1);
-  const [professions, setProfession] = useState();
+  const { isLoading: professionsLoading, professions } = useProfession();
   const [selectedProf, setSelectedProf] = useState();
   const [sortBy, setSortBy] = useState({ path: "name", order: "asc" });
   const [searchQuery, setSearchQuery] = useState("");
   const { users } = useUser();
+  const { currentUser } = useAuth();
 
   // console.log(users);
 
@@ -37,9 +39,6 @@ const UsersListPage = () => {
   };
 
   useEffect(() => {
-    api.professions.fetchAll().then((data) => setProfession(data));
-  }, []);
-  useEffect(() => {
     setCurrentPage(1);
   }, [selectedProf, searchQuery]);
   const handleSearchQuery = ({ target }) => {
@@ -58,21 +57,24 @@ const UsersListPage = () => {
   };
 
   if (users) {
-    let filteredUsers = [];
-    if (searchQuery) {
-      filteredUsers = users.filter(
-        (user) =>
-          user.name.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1
-      );
-    } else if (selectedProf) {
-      filteredUsers = users.filter(
-        (user) =>
-          JSON.stringify(user.profession) === JSON.stringify(selectedProf)
-      );
-    } else {
-      filteredUsers = users;
+    function filterUsers(data) {
+      let filteredUsers = [];
+      if (searchQuery) {
+        filteredUsers = data.filter(
+          (user) =>
+            user.name.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1
+        );
+      } else if (selectedProf) {
+        filteredUsers = data.filter(
+          (user) =>
+            JSON.stringify(user.profession) === JSON.stringify(selectedProf)
+        );
+      } else {
+        filteredUsers = data;
+      }
+      return filteredUsers.filter((user) => user._id !== currentUser._id);
     }
-
+    const filteredUsers = filterUsers(users);
     const count = filteredUsers.length;
     const sortedUsers = _.orderBy(filteredUsers, [sortBy.path], [sortBy.order]);
     const userCrop = paginate(sortedUsers, currentPage, pageSize);
@@ -82,7 +84,7 @@ const UsersListPage = () => {
 
     return (
       <div className="d-flex">
-        {professions && (
+        {professions && !professionsLoading && (
           <div className="d-flex flex-column flex-shrink-0 p-3">
             <GroupList
               items={professions}

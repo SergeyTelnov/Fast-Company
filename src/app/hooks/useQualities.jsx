@@ -35,16 +35,16 @@ export const QualitiesProvider = ({ children }) => {
       setError(null);
     }
   }, [error]);
+  function errorCatcher(error) {
+    const { message } = error.response.data;
+    setError(message);
+  }
 
   return (
     <QualitiesContext.Provider value={{ qualities, isLoading, getQuality }}>
       {children}
     </QualitiesContext.Provider>
   );
-  function errorCatcher(error) {
-    const { message } = error.response.data;
-    setError(message);
-  }
 };
 QualitiesProvider.propTypes = {
   children: PropTypes.oneOfType([
