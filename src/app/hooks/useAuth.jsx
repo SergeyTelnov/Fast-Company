@@ -36,10 +36,10 @@ const AuthProvider = ({ children }) => {
     return Math.floor(Math.random() * (max - min + 1) + min);
   }
 
-  async function updateUser(userId, data) {
+  async function updateUser(data) {
     try {
-      await userService.updateUser(userId, data);
-      setUser(data);
+      const { content } = await userService.update(data);
+      setUser(content);
     } catch (error) {
       errorCatcher(error);
     }

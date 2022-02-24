@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { validator } from "../../../utils/validator";
 import TextField from "../../common/form/textField";
 import SelectField from "../../common/form/selectField";
@@ -9,32 +9,29 @@ import Loading from "../../ui/loading";
 import BackButton from "../../common/backButton";
 import { useProfession } from "../../../hooks/useProfession";
 import { useQualities } from "../../../hooks/useQualities";
-import { useUser } from "../../../hooks/useUsers";
 import { useAuth } from "../../../hooks/useAuth";
 
 const EditUserPage = () => {
-  const { userId } = useParams();
   const history = useHistory();
-  const [isLoading, setIsLoading] = useState(false);
-  const { getUserById } = useUser();
-  const [data, setData] = useState(getUserById(userId));
-  const { updateUser } = useAuth();
-  const { professions } = useProfession();
+  const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState();
+  const { currentUser, updateUser } = useAuth();
+  const { professions, isLoading: professionLoading } = useProfession();
   const professionsList = professions.map((p) => ({
     label: p.name,
     value: p._id
   }));
-  const { qualities } = useQualities();
+  const { qualities, isLoading: qualitiesLoading } = useQualities();
   const qualitiesList = qualities.map((q) => ({ label: q.name, value: q._id }));
-  const currentQualities = getQualities(data.qualities);
   const [errors, setErrors] = useState({});
 
-  function getQualities(elements) {
+  function getQualitiesListByIds(qualitiesIds) {
     const qualitiesArray = [];
-    for (const elem of elements) {
-      for (const quality in qualities) {
-        if (elem === qualities[quality]._id) {
-          qualitiesArray.push(qualities[quality]);
+    for (const qualId of qualitiesIds) {
+      for (const quality of qualities) {
+        if (quality._id === qualId) {
+          qualitiesArray.push(quality);
+          break;
         }
       }
     }
@@ -46,20 +43,34 @@ const EditUserPage = () => {
     const isValid = validate();
     if (!isValid) return;
     try {
-      await updateUser(userId, {
+      await updateUser({
         ...data,
         qualities: data.qualities.map((q) => q.value)
       });
-      history.push(`/users/${data._id}`);
+      history.push(`/users/${currentUser._id}`);
     } catch (error) {
       setErrors(error);
     }
   };
   const transformData = (data) => {
-    return data.map((qual) => ({ label: qual.name, value: qual._id }));
+    const result = getQualitiesListByIds(data).map((qual) => ({
+      label: qual.name,
+      value: qual._id
+    }));
+    return result;
   };
   useEffect(() => {
-    if (data._id) setIsLoading(false);
+    if (!professionLoading && !qualitiesLoading && currentUser && !data) {
+      setData({
+        ...currentUser,
+        qualities: transformData(currentUser.qualities)
+      });
+    }
+  }, [professionLoading, qualitiesLoading, currentUser, data]);
+  useEffect(() => {
+    if (data && isLoading) {
+      setIsLoading(false);
+    }
   }, [data]);
 
   const validatorConfig = {
@@ -90,7 +101,6 @@ const EditUserPage = () => {
     return Object.keys(errors).length === 0;
   };
   const isValid = Object.keys(errors).length === 0;
-  console.log(data);
   return (
     <div className="container mt-5">
       <BackButton />
@@ -133,7 +143,7 @@ const EditUserPage = () => {
                 label="Выберите ваш пол"
               />
               <MultiSelectField
-                defaultValue={transformData(currentQualities)}
+                defaultValue={data.qualities}
                 options={qualitiesList}
                 onChange={handleChange}
                 name="qualities"
