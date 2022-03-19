@@ -13,44 +13,38 @@ export const QualitiesProvider = ({ children }) => {
   const [qualities, setQualities] = useState([]);
   const [isLoading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
   useEffect(() => {
-    getQualitiesList();
+    const getQualities = async () => {
+      try {
+        const { content } = await qualityService.get();
+        setQualities(content);
+        setLoading(false);
+      } catch (error) {
+        errorCatcher(error);
+      }
+    };
+    getQualities();
   }, []);
+  function getQuality(id) {
+    return qualities.find((q) => q._id === id);
+  }
   useEffect(() => {
     if (error !== null) {
       toast(error);
       setError(null);
     }
   }, [error]);
-
-  async function getQualitiesList() {
-    try {
-      const { content } = await qualityService.get();
-      setQualities(content);
-      setLoading(false);
-    } catch (error) {
-      errorCatcher(error);
-    }
-  }
-  function getQualities(id) {
-    return id.map((q) => {
-      for (const item of qualities) {
-        if (q === item._id) {
-          return (q = item);
-        }
-      }
-      return q;
-    });
-  }
-  return (
-    <QualitiesContext.Provider value={{ qualities, isLoading, getQualities }}>
-      {children}
-    </QualitiesContext.Provider>
-  );
   function errorCatcher(error) {
     const { message } = error.response.data;
     setError(message);
   }
+
+  return (
+    <QualitiesContext.Provider value={{ qualities, isLoading, getQuality }}>
+      {children}
+    </QualitiesContext.Provider>
+  );
 };
 QualitiesProvider.propTypes = {
   children: PropTypes.oneOfType([

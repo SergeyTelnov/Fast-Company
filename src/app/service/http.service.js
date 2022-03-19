@@ -1,11 +1,55 @@
 import axios from "axios";
 import { toast } from "react-toastify";
-import config from "../config.json";
+import configFile from "../config.json";
+import authService from "./auth.service";
+import localStorageService from "./localStorage.service";
 
-axios.defaults.baseURL = config.apiEndPoint;
+const http = axios.create({
+  baseURL: configFile.apiEndPoint
+});
 
-axios.interceptors.response.use(
-  (res) => res,
+http.interceptors.request.use(
+  async function (config) {
+    if (configFile.isFarebase) {
+      const containSlash = /\/$/gi.test(config.url);
+      config.url =
+        (containSlash ? config.url.slice(0, -1) : config.url) + ".json";
+      const expiresDate = localStorageService.getTokenExpiresDate();
+      const refreshToken = localStorageService.getRefreshToken();
+      if (refreshToken && expiresDate < Date.now()) {
+        const { data } = await authService.refresh();
+        localStorageService.setTokens({
+          refreshToken: data.refresh_token,
+          idToken: data.id_token,
+          expiresIn: data.expires_in,
+          localId: data.user_id
+        });
+      }
+      const accessToken = localStorageService.getAccessToken();
+      if (accessToken) {
+        config.params = { ...config.params, auth: accessToken };
+      }
+    }
+    return config;
+  },
+  function (error) {
+    return Promise.reject(error);
+  }
+);
+function transformData(data) {
+  return data && !data._id
+    ? Object.keys(data).map((key) => ({
+        ...data[key]
+      }))
+    : data;
+}
+http.interceptors.response.use(
+  (res) => {
+    if (configFile.isFarebase) {
+      res.data = { content: transformData(res.data) };
+    }
+    return res;
+  },
   function (error) {
     const expectedErrors =
       error.response &&
@@ -21,10 +65,11 @@ axios.interceptors.response.use(
 );
 
 const httpService = {
-  put: axios.put,
-  post: axios.post,
-  get: axios.get,
-  delete: axios.delete
+  put: http.put,
+  post: http.post,
+  get: http.get,
+  delete: http.delete,
+  patch: http.patch
 };
 
 export default httpService;

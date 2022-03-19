@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import userService from "../service/user.service";
 import { toast } from "react-toastify";
-import Loading from "../components/ui/loading";
+import { useAuth } from "./useAuth";
 
 const UseContext = React.createContext();
 
@@ -12,6 +12,7 @@ export const useUser = () => {
 
 const UserProvider = ({ children }) => {
   const [users, setUsers] = useState([]);
+  const { currentUser } = useAuth();
   const [isLoading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   useEffect(() => {
@@ -23,6 +24,14 @@ const UserProvider = ({ children }) => {
       setError(null);
     }
   }, [error]);
+  useEffect(() => {
+    if (!isLoading) {
+      const newUsers = [...users];
+      const indexUser = newUsers.findIndex((u) => u._id === currentUser._id);
+      newUsers[indexUser] = currentUser;
+      setUsers(newUsers);
+    }
+  }, [currentUser]);
 
   async function getUsers() {
     try {
@@ -33,17 +42,19 @@ const UserProvider = ({ children }) => {
       errorCatcher(error);
     }
   }
+  function getUserById(userId) {
+    return users.find((user) => user._id === userId);
+  }
 
   return (
-    <UseContext.Provider value={{ users }}>
-      {!isLoading ? children : <Loading />}
+    <UseContext.Provider value={{ users, getUserById }}>
+      {!isLoading ? children : "Loading.."}
     </UseContext.Provider>
   );
   function errorCatcher(error) {
-    console.log(error);
-    // const { message } = error.response.data;
-    // setError(message);
-    // setLoading(false);
+    const { message } = error.response.data;
+    setError(message);
+    setLoading(false);
   }
 };
 

@@ -1,28 +1,38 @@
-import React, { useState, useEffect } from "react";
-import TextField from "../common/form/textField";
+import React, { useEffect, useState } from "react";
 import { validator } from "../../utils/validator";
+import TextField from "../common/form/textField";
 import CheckBoxField from "../common/form/checkBoxField";
+import { useHistory } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { getAuthError, logIn } from "../../store/users";
 
 const LoginForm = () => {
-  const [data, setData] = useState({ email: "", password: "", stayOn: false });
+  const [data, setData] = useState({
+    email: "",
+    password: "",
+    stayOn: false
+  });
+  const loginError = useSelector(getAuthError());
+  const history = useHistory();
+  const dispatch = useDispatch();
   const [errors, setErrors] = useState({});
+
   const handleChange = (target) => {
-    setData((prevState) => ({ ...prevState, [target.name]: target.value }));
+    setData((prevState) => ({
+      ...prevState,
+      [target.name]: target.value
+    }));
   };
+
   const validatorConfig = {
     email: {
-      isRequired: { message: "Электронная почта обязательна для заполнения" },
-      isEmail: { message: "Email введён некорректно" }
+      isRequired: {
+        message: "Электронная почта обязательна для заполнения"
+      }
     },
     password: {
-      isRequired: { message: "Пароль обязателен для заполнения" },
-      isCapitalSimbol: {
-        message: "Пароль должен содержать хотя бы одну заглавную букву"
-      },
-      isContainDigit: { message: "Пароль должен содержать хотя бы одно цисло" },
-      min: {
-        message: "Пароль должен состоять минимум из 8 символов",
-        value: 8
+      isRequired: {
+        message: "Пароль обязателен для заполнения"
       }
     }
   };
@@ -35,11 +45,16 @@ const LoginForm = () => {
     return Object.keys(errors).length === 0;
   };
   const isValid = Object.keys(errors).length === 0;
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const isValid = validate();
     if (!isValid) return;
-    console.log(data);
+    const redirect = history.location.state
+      ? history.location.state.from.pathname
+      : "/";
+
+    dispatch(logIn({ payload: data, redirect }));
   };
   return (
     <form onSubmit={handleSubmit}>
@@ -61,7 +76,12 @@ const LoginForm = () => {
       <CheckBoxField value={data.stayOn} onChange={handleChange} name="stayOn">
         Оставаться в системе
       </CheckBoxField>
-      <button disabled={!isValid} className="btn btn-primary w-100 mx-auto">
+      {loginError && <p className="text-danger">{loginError}</p>}
+      <button
+        className="btn btn-primary w-100 mx-auto"
+        type="submit"
+        disabled={!isValid}
+      >
         Submit
       </button>
     </form>
