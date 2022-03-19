@@ -1,28 +1,35 @@
 import React, { useState, useEffect } from "react";
 import TextField from "../common/form/textField";
 import { validator } from "../../utils/validator";
-import api from "../../api";
 import SelectField from "../common/form/selectField";
 import RadioField from "../common/form/radioField";
 import MultiSelectField from "../common/form/multiSelectField";
 import CheckBoxField from "../common/form/checkBoxField";
+import { useDispatch, useSelector } from "react-redux";
+import { getQualities } from "../../store/qualities";
+import { getProfessions } from "../../store/profession";
+import { signUp } from "../../store/users";
 
 const RegisterForm = () => {
+  const dispatch = useDispatch();
   const [data, setData] = useState({
     email: "",
     password: "",
+    name: "",
     profession: "",
     sex: "male",
     qualities: [],
     licence: false
   });
-  const [qualities, setQualities] = useState({});
-  const [professions, setProfession] = useState();
+  const qualities = useSelector(getQualities());
+  const qualitiesList = qualities.map((q) => ({ label: q.name, value: q._id }));
+  const professions = useSelector(getProfessions());
+  const professionsList = professions.map((p) => ({
+    label: p.name,
+    value: p._id
+  }));
   const [errors, setErrors] = useState({});
-  useEffect(() => {
-    api.professions.fetchAll().then((data) => setProfession(data));
-    api.qualities.fetchAll().then((data) => setQualities(data));
-  }, []);
+
   const handleChange = (target) => {
     setData((prevState) => ({ ...prevState, [target.name]: target.value }));
   };
@@ -30,6 +37,13 @@ const RegisterForm = () => {
     email: {
       isRequired: { message: "Электронная почта обязательна для заполнения" },
       isEmail: { message: "Email введён некорректно" }
+    },
+    name: {
+      isRequired: { message: "Имя обязательно для заполнения" },
+      min: {
+        message: "Имя должно состоять минимум из 3 символов",
+        value: 3
+      }
     },
     password: {
       isRequired: { message: "Пароль обязателен для заполнения" },
@@ -66,8 +80,13 @@ const RegisterForm = () => {
     e.preventDefault();
     const isValid = validate();
     if (!isValid) return;
-    console.log(data);
+    const newData = {
+      ...data,
+      qualities: data.qualities.map((q) => q.value)
+    };
+    dispatch(signUp(newData));
   };
+
   return (
     <form onSubmit={handleSubmit}>
       <TextField
@@ -76,6 +95,13 @@ const RegisterForm = () => {
         value={data.email}
         onChange={handleChange}
         error={errors.email}
+      />
+      <TextField
+        label="Имя"
+        name="name"
+        value={data.name}
+        onChange={handleChange}
+        error={errors.name}
       />
       <TextField
         label="Пароль"
@@ -89,7 +115,7 @@ const RegisterForm = () => {
         name="profession"
         onChange={handleChange}
         label="Выберите вашу профессию"
-        options={professions}
+        options={professionsList}
         defaultOption="Choose..."
         error={errors.profession}
         value={data.profession}
@@ -106,8 +132,8 @@ const RegisterForm = () => {
         label="Выберите ваш пол"
       />
       <MultiSelectField
+        options={qualitiesList}
         defaultValue={data.qualities}
-        options={qualities}
         onChange={handleChange}
         name="qualities"
         label="Выберите ваши качества"

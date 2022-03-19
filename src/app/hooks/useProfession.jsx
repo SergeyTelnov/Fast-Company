@@ -19,6 +19,11 @@ export const ProfessionProvider = ({ children }) => {
       setError(null);
     }
   }, [error]);
+  function errorCatcher(error) {
+    const { message } = error.response.data;
+    setError(message);
+    setLoading(false);
+  }
   useEffect(() => {
     getProfessionsList();
   }, []);
@@ -30,11 +35,6 @@ export const ProfessionProvider = ({ children }) => {
     } catch (error) {
       errorCatcher(error);
     }
-  }
-  function errorCatcher(error) {
-    const { message } = error.response.data;
-    setError(message);
-    setLoading(false);
   }
   function getProfession(id) {
     return professions.find((p) => p._id === id);
