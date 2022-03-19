@@ -1,27 +1,34 @@
 import React, { useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
 import { validator } from "../../../utils/validator";
 import TextField from "../../common/form/textField";
 import SelectField from "../../common/form/selectField";
 import RadioField from "../../common/form/radioField";
 import MultiSelectField from "../../common/form/multiSelectField";
-import Loading from "../../ui/loading";
 import BackButton from "../../common/backButton";
-import { useProfession } from "../../../hooks/useProfession";
-import { useQualities } from "../../../hooks/useQualities";
-import { useAuth } from "../../../hooks/useAuth";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getQualities,
+  getQualitiesLoadingStatus
+} from "../../../store/qualities";
+import {
+  getProfessions,
+  getProfessionsLoadingStatus
+} from "../../../store/profession";
+import { getCurrentUserData, updateUser } from "../../../store/users";
 
 const EditUserPage = () => {
-  const history = useHistory();
+  const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState();
-  const { currentUser, updateUser } = useAuth();
-  const { professions, isLoading: professionLoading } = useProfession();
+  const currentUser = useSelector(getCurrentUserData());
+  const professions = useSelector(getProfessions());
+  const professionLoading = useSelector(getProfessionsLoadingStatus());
   const professionsList = professions.map((p) => ({
     label: p.name,
     value: p._id
   }));
-  const { qualities, isLoading: qualitiesLoading } = useQualities();
+  const qualities = useSelector(getQualities());
+  const qualitiesLoading = useSelector(getQualitiesLoadingStatus());
   const qualitiesList = qualities.map((q) => ({ label: q.name, value: q._id }));
   const [errors, setErrors] = useState({});
 
@@ -38,19 +45,16 @@ const EditUserPage = () => {
     return qualitiesArray;
   }
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     const isValid = validate();
     if (!isValid) return;
-    try {
-      await updateUser({
+    dispatch(
+      updateUser({
         ...data,
         qualities: data.qualities.map((q) => q.value)
-      });
-      history.push(`/users/${currentUser._id}`);
-    } catch (error) {
-      setErrors(error);
-    }
+      })
+    );
   };
   const transformData = (data) => {
     const result = getQualitiesListByIds(data).map((qual) => ({
@@ -158,7 +162,7 @@ const EditUserPage = () => {
               </button>
             </form>
           ) : (
-            <Loading />
+            "Loading..."
           )}
         </div>
       </div>

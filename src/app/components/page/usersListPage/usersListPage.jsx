@@ -6,22 +6,23 @@ import GroupList from "../../common/groupList";
 import SearchStatus from "../../ui/searchStatus";
 import UserTable from "../../ui/usersTable";
 import _ from "lodash";
-import Loading from "../../ui/loading";
-import { useUser } from "../../../hooks/useUsers";
-import { useProfession } from "../../../hooks/useProfession";
-import { useAuth } from "../../../hooks/useAuth";
+import { useSelector } from "react-redux";
+import {
+  getProfessions,
+  getProfessionsLoadingStatus
+} from "../../../store/profession";
+import { getCurrentUserId, getUsersList } from "../../../store/users";
 
 const UsersListPage = () => {
   const pageSize = 8;
   const [currentPage, setCurrentPage] = useState(1);
-  const { isLoading: professionsLoading, professions } = useProfession();
+  const professions = useSelector(getProfessions());
+  const professionsLoading = useSelector(getProfessionsLoadingStatus());
   const [selectedProf, setSelectedProf] = useState();
   const [sortBy, setSortBy] = useState({ path: "name", order: "asc" });
   const [searchQuery, setSearchQuery] = useState("");
-  const { users } = useUser();
-  const { currentUser } = useAuth();
-
-  // console.log(users);
+  const users = useSelector(getUsersList());
+  const currentUserId = useSelector(getCurrentUserId());
 
   const handleDelete = (userId) => {
     // setUsers((prevState) => prevState.filter((users) => users._id !== userId));
@@ -72,7 +73,7 @@ const UsersListPage = () => {
       } else {
         filteredUsers = data;
       }
-      return filteredUsers.filter((user) => user._id !== currentUser._id);
+      return filteredUsers.filter((user) => user._id !== currentUserId._id);
     }
     const filteredUsers = filterUsers(users);
     const count = filteredUsers.length;
@@ -127,7 +128,7 @@ const UsersListPage = () => {
       </div>
     );
   }
-  return <Loading />;
+  return "Loading...";
 };
 UsersListPage.propTypes = {
   users: PropTypes.array
