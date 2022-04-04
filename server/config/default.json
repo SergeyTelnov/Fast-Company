@@ -1,4 +1,6 @@
 {
   "port": 8080,
-  "mongoUri": "mongodb://urfkvuqpdvcocyawfldp:P4R4TG4cBrpV5cCgMzIz@bplsgfhxbhv83qv-mongodb.services.clever-cloud.com:27017/bplsgfhxbhv83qv"
+  "mongoUri": "mongodb://urfkvuqpdvcocyawfldp:P4R4TG4cBrpV5cCgMzIz@bplsgfhxbhv83qv-mongodb.services.clever-cloud.com:27017/bplsgfhxbhv83qv",
+  "accessSecret": "app fast company access secret",
+  "refreshSecret": "app fast company refresh secret"
 }
