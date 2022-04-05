@@ -49,6 +49,7 @@ router.post("/signUp", [
     }
   },
 ]);
+
 router.post("/signInWithPassword", [
   check("email", "Email введён некорректно").normalizeEmail().isEmail(),
   check("password", "Пароль не может быть пустым").exists(),
@@ -101,7 +102,6 @@ router.post("/signInWithPassword", [
 function isTokenInvalid(data, dbToken) {
   return !data || !dbToken || data._id !== dbToken?.user?.toString();
 }
-
 router.post("/token", async (req, res) => {
   try {
     const { refresh_token: refreshToken } = req.body;

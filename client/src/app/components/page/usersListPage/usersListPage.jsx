@@ -67,8 +67,7 @@ const UsersListPage = () => {
         );
       } else if (selectedProf) {
         filteredUsers = data.filter(
-          (user) =>
-            JSON.stringify(user.profession) === JSON.stringify(selectedProf)
+          (user) => user.profession === selectedProf._id
         );
       } else {
         filteredUsers = data;
